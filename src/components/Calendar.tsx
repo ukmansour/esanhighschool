@@ -8,26 +8,26 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  '1월', '2월', '3월', '4월', '5월', '6월',
+  '7월', '8월', '9월', '10월', '11월', '12월'
 ];
 
 export const Calendar: React.FC = () => {
-  // Start with March 2026
+  // 2026년 3월부터 시작
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 1));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  // Load notes from localStorage on mount
+  // 마운트 시 로컬 스토리지에서 메모 불러오기
   useEffect(() => {
     const savedNotes = localStorage.getItem('esan_calendar_notes');
     if (savedNotes) {
       try {
         setNotes(JSON.parse(savedNotes));
       } catch (e) {
-        console.error("Failed to load notes", e);
+        console.error("메모를 불러오는데 실패했습니다.", e);
       }
     }
   }, []);
@@ -62,13 +62,13 @@ export const Calendar: React.FC = () => {
 
   const selectedEvents = selectedDate ? academicSchedule.filter(e => e.date === selectedDate) : [];
   
-  // Format selected date for header: e.g., "2026년 3월 27일 (금요일)"
+  // 선택된 날짜 표시 형식: 예) "2026년 3월 27일 (금요일)"
   const getSelectedDateDisplay = () => {
     if (!selectedDate) return "";
     const [y, m, d] = selectedDate.split('-').map(Number);
     const dateObj = new Date(y, m - 1, d);
-    const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
-    return `${y}. ${m}. ${d}. (${dayName})`;
+    const dayName = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'][dateObj.getDay()];
+    return `${y}년 ${m}월 ${d}일 (${dayName})`;
   };
 
   return (
@@ -79,21 +79,21 @@ export const Calendar: React.FC = () => {
             <CalendarIcon size={24} />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-            {MONTHS[month]} <span className="text-blue-600">{year}</span>
+            <span className="text-blue-600">{year}년</span> {MONTHS[month]}
           </h2>
         </div>
         <div className="flex gap-2">
           <button
             onClick={prevMonth}
             className="p-2 hover:bg-blue-50 rounded-full transition-colors border border-gray-100"
-            aria-label="Previous month"
+            aria-label="이전 달"
           >
             <ChevronLeft className="text-gray-600" />
           </button>
           <button
             onClick={nextMonth}
             className="p-2 hover:bg-blue-50 rounded-full transition-colors border border-gray-100"
-            aria-label="Next month"
+            aria-label="다음 달"
           >
             <ChevronRight className="text-gray-600" />
           </button>
@@ -104,8 +104,8 @@ export const Calendar: React.FC = () => {
         {DAYS.map(day => (
           <div key={day} className={cn(
             "bg-blue-50 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider",
-            day === 'Sun' && "text-red-500",
-            day === 'Sat' && "text-blue-500"
+            day === '일' && "text-red-500",
+            day === '토' && "text-blue-500"
           )}>
             {day}
           </div>
@@ -165,7 +165,7 @@ export const Calendar: React.FC = () => {
         <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex justify-between items-center mb-6 border-b border-blue-200 pb-4">
             <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-              <span className="text-blue-600">Schedule:</span> {getSelectedDateDisplay()}
+              <span className="text-blue-600">상세 일정:</span> {getSelectedDateDisplay()}
             </h3>
             <button 
               onClick={() => setSelectedDate(null)}
@@ -178,7 +178,7 @@ export const Calendar: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <CalendarIcon size={14} /> School Events
+                <CalendarIcon size={14} /> 학교 공식 일정
               </h4>
               {selectedEvents.length > 0 ? (
                 <ul className="space-y-3">
@@ -199,25 +199,25 @@ export const Calendar: React.FC = () => {
                 </ul>
               ) : (
                 <div className="bg-white/50 border border-dashed border-gray-200 p-4 rounded-lg text-center text-gray-400 italic text-sm">
-                  No academic events scheduled.
+                  등록된 학교 일정이 없습니다.
                 </div>
               )}
             </div>
 
             <div>
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Edit3 size={14} /> My Notes
+                <Edit3 size={14} /> 나의 메모
               </h4>
               <div className="relative group">
                 <textarea
                   value={notes[selectedDate] || ''}
                   onChange={(e) => handleNoteChange(selectedDate, e.target.value)}
-                  placeholder="Write your plans or notes here..."
+                  placeholder="할 일이나 메모를 입력하세요..."
                   className="w-full h-32 p-4 bg-white rounded-lg border border-blue-100 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-sm placeholder:text-gray-300"
                 />
                 <div className="absolute bottom-3 right-3 opacity-0 group-focus-within:opacity-100 transition-opacity">
                   <span className="flex items-center gap-1 text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded-full border border-blue-100">
-                    <Save size={10} /> Auto-saving
+                    <Save size={10} /> 자동 저장됨
                   </span>
                 </div>
               </div>
