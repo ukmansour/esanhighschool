@@ -1,5 +1,20 @@
 import { Calendar } from './components/Calendar'
 
+const SUBJECT_COLORS: Record<string, { bg: string, text: string }> = {
+  "국어": { bg: "#F05097", text: "#FFFFFF" },
+  "수학": { bg: "#657B4E", text: "#FFFFFF" },
+  "영어": { bg: "#FFE852", text: "#000000" },
+  "과학": { bg: "#6184D4", text: "#FFFFFF" },
+  "한국사": { bg: "#F5F2E3", text: "#000000" },
+  "사회": { bg: "#672C70", text: "#FFFFFF" },
+  "정보": { bg: "#FF828A", text: "#FFFFFF" },
+  "체육": { bg: "#BFBFBF", text: "#000000" },
+  "과탐실": { bg: "#007C64", text: "#FFFFFF" },
+  "미술": { bg: "#341E87", text: "#FFFFFF" },
+  "창주": { bg: "#FFB27D", text: "#000000" },
+  "진로": { bg: "#DAAADB", text: "#000000" },
+};
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -56,13 +71,20 @@ function App() {
                   ["6", "사회", "국어", "과학", "창주", "진로"],
                   ["7", "영어", "-", "사회", "-", "국어"],
                 ].map((row, i) => (
-                  <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                  <tr key={i} className="hover:bg-blue-50/10 transition-colors">
                     <td className="border border-blue-100 p-3 text-center font-bold bg-gray-50 text-gray-500 w-16">{row[0]}</td>
-                    <td className="border border-blue-100 p-3 text-center text-gray-700">{row[1]}</td>
-                    <td className="border border-blue-100 p-3 text-center text-gray-700">{row[2]}</td>
-                    <td className="border border-blue-100 p-3 text-center text-gray-700">{row[3]}</td>
-                    <td className="border border-blue-100 p-3 text-center text-gray-700">{row[4]}</td>
-                    <td className="border border-blue-100 p-3 text-center text-gray-700">{row[5]}</td>
+                    {row.slice(1).map((subject, j) => {
+                      const style = SUBJECT_COLORS[subject] || { bg: "transparent", text: "inherit" };
+                      return (
+                        <td 
+                          key={j} 
+                          className="border border-blue-100 p-3 text-center font-medium"
+                          style={{ backgroundColor: style.bg, color: style.text }}
+                        >
+                          {subject}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
