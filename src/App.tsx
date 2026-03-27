@@ -21,7 +21,7 @@ function App() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            의산고등학교
+            이산고등학교 3학년 10반
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-blue-600 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl font-medium">
             2026학년도 학사일정
@@ -94,7 +94,7 @@ function App() {
         </div>
         
         <footer className="mt-16 text-center text-gray-500 text-sm">
-          <p>© 2026 의산고등학교 교무처. All rights reserved.</p>
+          <p>© 2026 이산고등학교 3학년 10반. All rights reserved.</p>
         </footer>
       </div>
     </div>
