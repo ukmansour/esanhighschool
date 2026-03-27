@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Edit3, Save } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { academicSchedule, type AcademicEvent } from '../data/schedule';
@@ -18,6 +18,19 @@ export const Calendar: React.FC = () => {
   // Start with March 2026
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 1));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  // Load notes from localStorage on mount
+  useEffect(() => {
+    const savedNotes = localStorage.getItem('esan_calendar_notes');
+    if (savedNotes) {
+      try {
+        setNotes(JSON.parse(savedNotes));
+      } catch (e) {
+        console.error("Failed to load notes", e);
+      }
+    }
+  }, []);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -41,7 +54,22 @@ export const Calendar: React.FC = () => {
     return academicSchedule.filter(e => e.date === dateStr);
   };
 
+  const handleNoteChange = (date: string, value: string) => {
+    const updatedNotes = { ...notes, [date]: value };
+    setNotes(updatedNotes);
+    localStorage.setItem('esan_calendar_notes', JSON.stringify(updatedNotes));
+  };
+
   const selectedEvents = selectedDate ? academicSchedule.filter(e => e.date === selectedDate) : [];
+  
+  // Format selected date for header: e.g., "2026년 3월 27일 (금요일)"
+  const getSelectedDateDisplay = () => {
+    if (!selectedDate) return "";
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
+    return `${y}. ${m}. ${d}. (${dayName})`;
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 bg-white text-gray-800 rounded-xl shadow-2xl border border-blue-100">
@@ -90,6 +118,7 @@ export const Calendar: React.FC = () => {
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           const isSelected = selectedDate === dateStr;
           const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+          const hasNote = !!notes[dateStr];
 
           return (
             <div
@@ -109,6 +138,7 @@ export const Calendar: React.FC = () => {
                 )}>
                   {day}
                 </span>
+                {hasNote && <Edit3 size={12} className="text-blue-400 mt-1" />}
               </div>
               <div className="mt-1 space-y-1 overflow-y-auto max-h-20 scrollbar-hide">
                 {events.map((event, idx) => (
@@ -133,32 +163,66 @@ export const Calendar: React.FC = () => {
 
       {selectedDate && (
         <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            Schedule for {selectedDate}
-          </h3>
-          {selectedEvents.length > 0 ? (
-            <ul className="space-y-4">
-              {selectedEvents.map((event, idx) => (
-                <li key={idx} className="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className={cn(
-                      "w-3 h-3 rounded-full",
-                      event.type === 'holiday' ? "bg-red-500" : event.type === 'exam' ? "bg-amber-500" : "bg-blue-500"
-                    )} />
-                    <span className="font-bold text-lg text-gray-800">{event.title}</span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 uppercase">
-                      {event.type}
-                    </span>
-                  </div>
-                  {event.description && (
-                    <p className="text-gray-600 ml-6 text-sm italic">{event.description}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 italic">No academic events scheduled for this day.</p>
-          )}
+          <div className="flex justify-between items-center mb-6 border-b border-blue-200 pb-4">
+            <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+              <span className="text-blue-600">Schedule:</span> {getSelectedDateDisplay()}
+            </h3>
+            <button 
+              onClick={() => setSelectedDate(null)}
+              className="text-gray-400 hover:text-gray-600 font-bold"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <CalendarIcon size={14} /> School Events
+              </h4>
+              {selectedEvents.length > 0 ? (
+                <ul className="space-y-3">
+                  {selectedEvents.map((event, idx) => (
+                    <li key={idx} className="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={cn(
+                          "w-2 h-2 rounded-full",
+                          event.type === 'holiday' ? "bg-red-500" : event.type === 'exam' ? "bg-amber-500" : "bg-blue-500"
+                        )} />
+                        <span className="font-bold text-gray-800">{event.title}</span>
+                      </div>
+                      {event.description && (
+                        <p className="text-gray-600 text-xs italic ml-4">{event.description}</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="bg-white/50 border border-dashed border-gray-200 p-4 rounded-lg text-center text-gray-400 italic text-sm">
+                  No academic events scheduled.
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Edit3 size={14} /> My Notes
+              </h4>
+              <div className="relative group">
+                <textarea
+                  value={notes[selectedDate] || ''}
+                  onChange={(e) => handleNoteChange(selectedDate, e.target.value)}
+                  placeholder="Write your plans or notes here..."
+                  className="w-full h-32 p-4 bg-white rounded-lg border border-blue-100 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-sm placeholder:text-gray-300"
+                />
+                <div className="absolute bottom-3 right-3 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                  <span className="flex items-center gap-1 text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded-full border border-blue-100">
+                    <Save size={10} /> Auto-saving
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
