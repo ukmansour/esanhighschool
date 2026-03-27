@@ -125,27 +125,27 @@ export const Calendar: React.FC = () => {
               key={day}
               onClick={() => setSelectedDate(dateStr)}
               className={cn(
-                "bg-white h-32 p-2 cursor-pointer transition-all hover:bg-blue-50/50 relative group border-t border-l border-gray-100",
+                "bg-white h-20 sm:h-32 p-1 sm:p-2 cursor-pointer transition-all hover:bg-blue-50/50 relative group border-t border-l border-gray-100",
                 isSelected && "bg-blue-50 ring-2 ring-inset ring-blue-500 z-10",
               )}
             >
               <div className="flex justify-between items-start">
                 <span className={cn(
-                  "text-lg font-medium",
+                  "text-sm sm:text-lg font-medium",
                   (new Date(year, month, day).getDay() === 0 || events.some(e => e.type === 'holiday')) && "text-red-500",
                   new Date(year, month, day).getDay() === 6 && "text-blue-500",
-                  isToday && "bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center -m-1"
+                  isToday && "bg-blue-600 text-white rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center -m-0.5 sm:-m-1 text-xs sm:text-base"
                 )}>
                   {day}
                 </span>
-                {hasNote && <Edit3 size={12} className="text-blue-400 mt-1" />}
+                {hasNote && <Edit3 size={10} className="text-blue-400 mt-0.5 sm:size-[12px]" />}
               </div>
-              <div className="mt-1 space-y-1 overflow-y-auto max-h-20 scrollbar-hide">
+              <div className="mt-0.5 sm:mt-1 space-y-0.5 overflow-y-auto max-h-[40px] sm:max-h-20 scrollbar-hide">
                 {events.map((event, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium",
+                      "text-[8px] sm:text-[10px] px-1 py-0.5 rounded-sm sm:rounded-md truncate font-medium leading-tight",
                       event.type === 'holiday' && "bg-red-100 text-red-700 border border-red-200",
                       event.type === 'exam' && "bg-amber-100 text-amber-700 border border-amber-200",
                       event.type === 'event' && "bg-blue-100 text-blue-700 border border-blue-200"
